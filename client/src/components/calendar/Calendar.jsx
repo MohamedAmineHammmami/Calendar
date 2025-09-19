@@ -1,9 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import calendarStyle from "./calendar.module.css";
-import { CiSquareChevDown } from "react-icons/ci";
-import { FaCaretUp, FaCaretDown } from "react-icons/fa6";
+import TopSection from "../topSection/TopSection";
+import MainSection from "../mainSection/MainSection";
 
-const days = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+const days = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 const leapYear = () => {
   const currentYear = new Date().getFullYear();
   return (currentYear % 4 === 0 && currentYear % 100 !== 0) ||
@@ -27,40 +35,90 @@ const months = [
 ];
 
 function Calendar() {
-  const [dates, setDates] = useState(() => {
-    let acc = [];
-    for (let i = 1; i <= 42; i++) {
-      acc.push(i);
+  const [toggle, setToggle] = useState(true);
+  const [dates, setDates] = useState([]);
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(
+    new Date().getMonth()
+  );
+
+  const handleToggle = () => {
+    setToggle(!toggle);
+  };
+
+  const checkNextDatesLong = (currentDateLong) => {
+    let v = 0;
+    switch (currentDateLong) {
+      case 28:
+        v = 14;
+        break;
+      case 29:
+        v = 13;
+        break;
+      case 30:
+        v = 12;
+        break;
+      case 31:
+        v = 11;
+        break;
     }
-    return acc;
-  });
+    return v;
+  };
+
+  const genDates = () => {
+    const currentDates = [];
+    const prevDates = [];
+    const nextDates = [];
+    let index = 1;
+    const currentDateLong = months[currentMonthIndex].long;
+    let nextDatesLong = checkNextDatesLong(currentDateLong);
+    let prevMonthLong =
+      currentMonthIndex === 0
+        ? months[11].long
+        : months[currentMonthIndex - 1].long;
+
+    const firstDayIndex = new Date(
+      `${currentYear}-${currentMonthIndex + 1}-1`
+    ).getDay();
+
+    !firstDayIndex && (index = 5);
+
+    for (let i = 1; i <= currentDateLong; i++) {
+      if (index < firstDayIndex) {
+        prevDates.unshift(prevMonthLong);
+        prevMonthLong--;
+      }
+      if (index <= nextDatesLong - firstDayIndex + 1) {
+        nextDates.push(i);
+        index++;
+      }
+      currentDates.push(i);
+    }
+    setDates([...prevDates, ...currentDates, ...nextDates]);
+  };
+
+  useEffect(() => {
+    genDates();
+  }, [currentMonthIndex, currentYear]);
+
   return (
-    <div className={calendarStyle.container}>
-      <div className={calendarStyle.topSection}>
-        <div className={calendarStyle.dayMonthDisplay}>
-          <span>Thursday, September 18</span>
-          <CiSquareChevDown />
-        </div>
-        <div className={calendarStyle.monthYearDisplay}>
-          <span>September 2025</span>
-          <div className={calendarStyle.upDownBtns}>
-            <FaCaretUp />
-            <FaCaretDown />
-          </div>
-        </div>
-      </div>
-      <div className={calendarStyle.mainSection}>
-        <div className={calendarStyle.weekDays}>
-          {days.map((el, i) => {
-            return <span key={i}>{el}</span>;
-          })}
-        </div>
-        <div className={calendarStyle.dates}>
-          {dates.map((el, i) => {
-            return <span key={i}>{el}</span>;
-          })}
-        </div>
-      </div>
+    <div
+      className={
+        toggle
+          ? ` ${calendarStyle.baseContainer} ${calendarStyle.container}`
+          : `${calendarStyle.baseContainer} ${calendarStyle.shrinkContainer}`
+      }
+    >
+      <TopSection
+        {...{
+          months,
+          days,
+          currentMonthIndex,
+          currentYear,
+          handleToggle,
+        }}
+      />
+      {toggle && <MainSection {...{ dates, days }} />}
     </div>
   );
 }

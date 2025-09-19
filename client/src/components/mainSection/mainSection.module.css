@@ -1,0 +1,34 @@
+.mainSection {
+  width: 100%;
+  height: calc(100% - 20%);
+  padding: 0.2rem;
+  background-color: rgb(2, 42, 88);
+  color: white;
+  border-radius: 0 0 1rem 1rem;
+}
+
+.weekDays {
+  width: 100%;
+  height: 10%;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  align-items: center;
+  justify-items: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.dates {
+  width: 100%;
+  height: calc(100% - 10%);
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  align-items: center;
+  justify-items: center;
+}
+
+.dates span {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
